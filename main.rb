@@ -2,11 +2,25 @@
 
 require 'nokogiri'
 require 'open-uri'
+require 'byebug'
 
-totalPages=53
+
+if ARGV[0].nil? or ARGV[1].nil? then
+    $stderr.puts "Go to http://www.elections.ca/WPAPPS/WPR/EN/EDA, click search and tell me how many pages you see using $pages $count"
+    puts ARGV
+    exit 1
+end
+
+totalPages=ARGV[0].to_i
+totalCount=ARGV[1].to_i
+seperator="\t"
+
+seperator=ARGV[2] if ! ARGV[2].nil?
 
 
-fmt = "%s\t%s\t%s\n"
+
+
+fmt = "%s#{seperator}%s#{seperator}%s\n"
 printf(fmt, "Riding", "Party", "Email")
 
 
@@ -14,7 +28,7 @@ printf(fmt, "Riding", "Party", "Email")
 
 start = Time.now
 
-doc = Nokogiri::HTML(open("http://www.elections.ca/WPAPPS/WPR/EN/EDA/Details?province=-1&distyear=2013&district=-1&party=-1&appstatus=-1&pageno=#{page}&totalpages=#{totalPages}&totalcount=1301&viewall=1"))
+doc = Nokogiri::HTML(open("http://www.elections.ca/WPAPPS/WPR/EN/EDA/Details?province=-1&distyear=2013&district=-1&party=-1&appstatus=-1&pageno=#{page}&totalpages=#{totalPages}&totalcount=#{totalCount}&viewall=1"))
 
 ns = doc.xpath("//fieldset[@class='wpr-detailgroup wpr-fieldset-group']/div[@class='wpr-details']/div[@class='wpr-detailsbody']")
 
