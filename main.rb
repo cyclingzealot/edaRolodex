@@ -6,7 +6,7 @@ require 'byebug'
 
 
 if ARGV[0].nil? or ARGV[1].nil? then
-    $stderr.puts "Go to http://www.elections.ca/WPAPPS/WPR/EN/EDA, click search and tell me how many pages you see using $pages $count"
+    $stderr.puts "Go to http://www.elections.ca/WPAPPS/WPR/EN/EDA , click search, then 'Next 25 >>' and tell me how many pages you see in the URL using $pages $count"
     puts ARGV
     exit 1
 end
@@ -20,8 +20,8 @@ seperator=ARGV[2] if ! ARGV[2].nil?
 
 
 
-fmt = "%s#{seperator}%s#{seperator}%s\n"
-printf(fmt, "Riding", "Party", "Email")
+fmt = "%s#{seperator}%s#{seperator}%s#{seperator}%s#{seperator}%s\n"
+printf(fmt, "Province", "Riding", "Party", "Email", "City HQ")
 
 
 (1..totalPages).each { |page|
@@ -42,6 +42,10 @@ end
 ns.each { |n|
     hqNode = n.xpath("./div[@class='wpr-detailsleftcol']/div[2]/fieldset");
 
+    provinceNode = hqNode.xpath('./span[@class="wpr-field"][1]');
+    province    = provinceNode.text.split(',')[1].strip
+    city    = provinceNode.text.split(',')[0].strip
+
     email = hqNode.xpath("./a[1]").text
 
     ppNode = n.xpath("./div[@class='wpr-detailsleftcol']/div[3]");
@@ -52,7 +56,7 @@ ns.each { |n|
 
     ed = edNode.text.split("\r\n")[2].split("\302\240")[0].strip
 
-    printf(fmt, ed, party, email)
+    printf(fmt, province, ed, party, email, city)
 }
 
 done = Time.now
