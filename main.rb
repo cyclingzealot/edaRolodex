@@ -4,6 +4,42 @@ require 'nokogiri'
 require 'open-uri'
 #require 'byebug'
 
+def generateFVCName(province, party, ed)
+    partyShortName = case party
+        when 'Bloc Québécois'                       then 'BQ'
+        when 'Canadian Action Party'                then 'Action'
+        when 'Christian Heritage Party of Canada'   then 'Christian'
+        when 'Communist Party of Canada'            then 'Communist'
+        when 'Conservative Party of Canada'         then 'Conservative'
+        when 'Green Party of Canada'                then 'Green'
+        when 'Liberal Party of Canada'              then 'Liberal'
+        when 'Libertarian Party of Canada'          then 'Libertarian'
+        when 'Marijuana Party'                      then 'Marijuana'
+        when 'New Democratic Party'                 then 'New Democrat'
+        when 'Progressive Canadian Party'           then 'PC'
+        else 'Other'
+    end
+
+    provinceShortName = case province
+        when 'Alberta'                      then 'Alberta'
+        when 'British Columbia'             then 'BC'
+        when 'Manitoba'                     then 'Manitoba'
+        when 'New Brunswick'                then 'NB'
+        when 'Newfoundland and Labrador'    then 'NFL'
+        when 'Northwest Territories'        then 'NWT'
+        when 'Nova Scotia'                  then 'NS'
+        when 'Nunavut'                      then 'Nunavut'
+        when 'Ontario'                      then 'Ontario'
+        when 'Prince Edward Island'         then 'PEI'
+        when 'Quebec'                       then 'Quebec'
+        when 'Saskatchewan'                 then 'SK'
+        when 'Yukon'                        then 'Yukon'
+    end
+
+    return "EDA #{provinceShortName} #{partyShortName} #{ed}"
+end
+
+
 
 if ARGV[0].nil? or ARGV[1].nil? then
     $stderr.puts "Go to http://www.elections.ca/WPAPPS/WPR/EN/EDA , click search, then 'Next 25 >>' and tell me how many pages you see in the URL using $pages $count"
@@ -65,13 +101,13 @@ ns.each { |n|
     fvcName = address = edaName = postalCode = '';
     if fullBool
         # Determine Fair Vote Name
-        fvcName = generateFVCName(province, party, ed)
+        fvcName = generateFVCName province, party, ed
 
         # Fetch address
-        address = hqNode.text.split("\n")[1]
+        address = hqNode.text.split("\n")[2].strip
 
         # Fetch eda name
-        edaName = n.xpath("./div[@class='wpr-detailtitle']").text.strip;
+        edaName = n.xpath("../../legend[@class='wpr-ltitle']").text.strip;
 
         # Fetch postal code
         postalCode = hqNode.xpath('./span[@class="wpr-field"][2]').text.strip;
@@ -79,7 +115,6 @@ ns.each { |n|
 
 
     if fullBool
-        printf(fmt, "Fair Vote Name", "EDA Name", "Province", "Riding", "Party", "Email", "HQ City", "HQ Address", "HQ Postal Code")
         printf(fmt, fvcName, edaName, province, ed, party, email, city, address, postalCode)
     else
         printf(fmt, province, ed, party, email, city)
@@ -98,39 +133,3 @@ sleep(sleepTime)
 
 
 
-
-
-def generateFVCName(province, party, ed)
-    partyShortName = case party
-        when 'Bloc Québécois'                       then 'BQ'
-        when 'Canadian Action Party'                then 'Action'
-        when 'Christian Heritage Party of Canada'   then 'Christian'
-        when 'Communist Party of Canada'            then 'Communist'
-        when 'Conservative Party of Canada'         then 'Conservative'
-        when 'Green Party of Canada'                then 'Green'
-        when 'Liberal Party of Canada'              then 'Liberal'
-        when 'Libertarian Party of Canada'          then 'Libertarian'
-        when 'Marijuana Party'                      then 'Marijuana'
-        when 'New Democratic Party'                 then 'New Democrat'
-        when 'Progressive Canadian Party'           then 'PC'
-        else 'Other'
-    end
-
-    provinceShortName = case province
-        when 'Alberta'                      then 'Alberta'
-        when 'British Columbia'             then 'BC'
-        when 'Manitoba'                     then 'Manitoba'
-        when 'New Brunswick'                then 'NB'
-        when 'Newfoundland and Labrador'    then 'NFL'
-        when 'Northwest Territories'        then 'NWT'
-        when 'Nova Scotia'                  then 'NS'
-        when 'Nunavut'                      then 'Nunavut'
-        when 'Ontario'                      then 'Ontario'
-        when 'Prince Edward Island'         then 'PEI'
-        when 'Quebec'                       then 'Quebec'
-        when 'Saskatchewan'                 then 'SK'
-        when 'Yukon'                        then 'Yukon'
-    end
-
-    return "EDA #{provinceShortName} #{partyShortName} ed"
-end
