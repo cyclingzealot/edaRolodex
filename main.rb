@@ -2,7 +2,7 @@
 
 require 'nokogiri'
 require 'open-uri'
-require 'byebug'
+#require 'byebug'
 
 
 if ARGV[0].nil? or ARGV[1].nil? then
