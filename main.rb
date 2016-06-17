@@ -17,11 +17,17 @@ seperator="\t"
 
 seperator=ARGV[2] if ! ARGV[2].nil?
 
+fullBool=(ARGV[3] == 'full') if ! ARGV[3].nil?
 
 
 
 fmt = "%s#{seperator}%s#{seperator}%s#{seperator}%s#{seperator}%s\n"
-printf(fmt, "Province", "Riding", "Party", "Email", "City HQ")
+if fullBool
+    fmt = "%s#{seperator}%s#{seperator}%s#{seperator}%s#{seperator}%s#{seperator}%s#{seperator}%s#{seperator}%s#{seperator}%s\n"
+    printf(fmt, "Fair Vote Name", "EDA Name", "Province", "Riding", "Party", "Email", "HQ City", "HQ Address", "HQ Postal Code")
+else
+    printf(fmt, "Province", "Riding", "Party", "Email", "City HQ")
+end
 
 
 (1..totalPages).each { |page|
@@ -56,7 +62,28 @@ ns.each { |n|
 
     ed = edNode.text.split("\r\n")[2].split("\302\240")[0].strip
 
-    printf(fmt, province, ed, party, email, city)
+    fvcName = address = edaName = postalCode = '';
+    if fullBool
+        # Determine Fair Vote Name
+        fvcName = generateFVCName(province, party, ed)
+
+        # Fetch address
+        address = hqNode.text.split("\n")[1]
+
+        # Fetch eda name
+        edaName = n.xpath("./div[@class='wpr-detailtitle']").text.strip;
+
+        # Fetch postal code
+        postalCode = hqNode.xpath('./span[@class="wpr-field"][2]').text.strip;
+    end
+
+
+    if fullBool
+        printf(fmt, "Fair Vote Name", "EDA Name", "Province", "Riding", "Party", "Email", "HQ City", "HQ Address", "HQ Postal Code")
+        printf(fmt, fvcName, edaName, province, ed, party, email, city, address, postalCode)
+    else
+        printf(fmt, province, ed, party, email, city)
+    end
 }
 
 done = Time.now
@@ -68,3 +95,42 @@ $stderr.puts "Sleeping #{sleepTime} seconds"
 sleep(sleepTime)
 
 }
+
+
+
+
+
+def generateFVCName(province, party, ed)
+    partyShortName = case party
+        when 'Bloc Québécois'                       then 'BQ'
+        when 'Canadian Action Party'                then 'Action'
+        when 'Christian Heritage Party of Canada'   then 'Christian'
+        when 'Communist Party of Canada'            then 'Communist'
+        when 'Conservative Party of Canada'         then 'Conservative'
+        when 'Green Party of Canada'                then 'Green'
+        when 'Liberal Party of Canada'              then 'Liberal'
+        when 'Libertarian Party of Canada'          then 'Libertarian'
+        when 'Marijuana Party'                      then 'Marijuana'
+        when 'New Democratic Party'                 then 'New Democrat'
+        when 'Progressive Canadian Party'           then 'PC'
+        else 'Other'
+    end
+
+    provinceShortName = case province
+        when 'Alberta'                      then 'Alberta'
+        when 'British Columbia'             then 'BC'
+        when 'Manitoba'                     then 'Manitoba'
+        when 'New Brunswick'                then 'NB'
+        when 'Newfoundland and Labrador'    then 'NFL'
+        when 'Northwest Territories'        then 'NWT'
+        when 'Nova Scotia'                  then 'NS'
+        when 'Nunavut'                      then 'Nunavut'
+        when 'Ontario'                      then 'Ontario'
+        when 'Prince Edward Island'         then 'PEI'
+        when 'Quebec'                       then 'Quebec'
+        when 'Saskatchewan'                 then 'SK'
+        when 'Yukon'                        then 'Yukon'
+    end
+
+    return "EDA #{provinceShortName} #{partyShortName} ed"
+end
