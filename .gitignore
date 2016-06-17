@@ -1,3 +1,4 @@
 data/*
 *.sw?
 .~lock.*
+.byebug_history
