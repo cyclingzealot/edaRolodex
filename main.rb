@@ -6,7 +6,7 @@ require 'open-uri'
 
 
 if ARGV[0].nil? or ARGV[1].nil? then
-    $stderr.puts "Go to http://www.elections.ca/WPAPPS/WPR/EN/EDA , click search, then 'Next 25 >>' and tell me how many pages you see in the URL using $pages $count"
+    $stderr.puts %Q[Go to http://www.elections.ca/WPAPPS/WPR/EN/EDA , click "Find Assocations", then "Select All", then "View Selected".  Enter the url as an argument]
     puts ARGV
     exit 1
 end
